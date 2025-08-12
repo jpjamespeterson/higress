@@ -138,6 +138,7 @@ func onHttpRequestHeader(ctx wrapper.HttpContext, pluginConfig config.PluginConf
 	ctx.DisableReroute()
 
 	initContext(ctx)
+	maybeTriggerBatch(ctx)
 
 	rawPath := ctx.Path()
 
