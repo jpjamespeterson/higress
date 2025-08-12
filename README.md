@@ -185,3 +185,41 @@ Higress would not be possible without the valuable open-source work of projects 
 - Batch AI Workloads (Volcano): submit batch jobs via Volcano. See `docs/volcano.md`.
 
 Each feature is toggleable via Helm values and implemented modularly under `pkg/`.
+
+## Updates in this Fork
+
+This fork enhances enterprise readiness with modular features and Helm-controlled toggles.
+
+- Multi-Cluster (Karmada)
+  - Code: `pkg/karmada`
+  - Helm: `helm/core/templates/karmada-cpp.yaml`, values: `karmada.enabled`
+  - Docs: `docs/multicluster.md`
+- AI Autoscaling (KEDA)
+  - Code: `pkg/autoscaler` (`-tags keda` optional)
+  - Helm: `helm/core/templates/keda-scaledobject.yaml`, values: `keda.enabled`, `keda.metric.*`
+  - Docs/Sample: `docs/autoscaling.md`, `samples/keda/scaledobject.yaml`
+- Gateway API
+  - Adapter: `pkg/gateway` bridges to existing Gateway controller
+- Observability (Prometheus + OpenTelemetry)
+  - Code: `pkg/observability` exports AI token/latency metrics and OTLP tracing setup
+  - Helm: `helm/core/templates/prometheus.yaml`, `helm/core/templates/otel-collector.yaml`, values under `observability.*`
+  - Docs: `docs/observability.md`
+- Multi-Tenancy
+  - Code: `pkg/tenancy` and wiring inside `pkg/ingress/kube/gateway/istio/controller.go`
+  - Helm: `controller.tenantNamespaces` to set `HIGRESS_TENANT_NAMESPACES`
+  - Docs: `docs/tenancy.md`
+- Volcano (Batch AI)
+  - Code: `pkg/volcano` (`-tags volcano` optional)
+  - Helm: `helm/core/templates/volcano-job.yaml`, values: `volcano.enabled`
+  - Docs: `docs/volcano.md`
+- ai-proxy Metrics
+  - New counters for token usage, latency buckets, and batch triggers under `plugins/wasm-go/extensions/ai-proxy`
+- CI
+  - Workflow: `.github/workflows/test.yml`
+
+Enable examples:
+- Karmada: `--set karmada.enabled=true`
+- KEDA: `--set keda.enabled=true --set keda.metric.name=higress_ai_token_usage_total --set keda.metric.threshold=100`
+- Prometheus/OTel: `--set observability.prometheus.enabled=true --set observability.otelCollector.enabled=true`
+- Tenancy: `--set controller.tenantNamespaces='{team-a,team-b}'`
+- Volcano: `--set volcano.enabled=true`
